@@ -4,13 +4,13 @@
         private $dbcon = null;
         private $dbret = array();
         private $encode = array();
-        public function __construct(string $db_name)
+        public function __construct(string $db_name, string $db_user, string $db_user_password)
         {
             try {
                 $this->dbcon = new PDO(
                     "mysql:host=localhost;dbname=$db_name",
-                    "root",
-                    "password",
+                    $db_user,
+                    $db_user_password,
                     array(
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                     )
