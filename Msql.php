@@ -1,11 +1,9 @@
 <?php
-    class Msql
-    {
+    class Msql {
         private $dbcon = null;
         private $dbret = array();
         private $encode = array();
-        public function __construct(string $db_name, string $db_user, string $db_user_password)
-        {
+        public function __construct(string $db_name, string $db_user, string $db_user_password) {
             try {
                 $this->dbcon = new PDO(
                     "mysql:host=localhost;dbname=$db_name",
@@ -15,13 +13,11 @@
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                     )
                 );
-            }
-            catch(PDOException $e) {
+            } catch(PDOException $e) {
                 die('Connection error: ' . $e->getMessage());
             }
         }
-        public function dbAlter($alter, $args = array())
-        {
+        public function dbAlter($alter, $args = array()) {
             if (stripos($alter, 'SELECT') !== false) {
                 die('This method is not to be used to SELECT');
             }
@@ -39,15 +35,13 @@
                 $dbstm->execute();
                 $this->dbcon->commit();
                 return $dbstm->rowCount();
-            }
-            catch(PDOException $e) {
+            } catch(PDOException $e) {
                 $this->dbcon->rollBack();
                 //die('Change error: ' . $e->getMessage());
                 return false;
             }
         }
-        public function dbSelect($query, $args = array())
-        {
+        public function dbSelect($query, $args = array()) {
             try {
                 $dbstm = $this->dbcon->prepare($query);
                 foreach ($args as $key => $value) {
@@ -59,14 +53,12 @@
                     return Msql::dbEncode($this->dbret);
                 }
                 return false;
-            }
-            catch(PDOException $e) {
+            } catch(PDOException $e) {
                 //die('Select error: ' . $e->getMessage());
                 return false;
             }
         }
-        public function dbColumn($query, $args = array(), $column = 0)
-        {
+        public function dbColumn($query, $args = array(), $column = 0) {
             try {
                 $dbstm = $this->dbcon->prepare($query);
                 foreach ($args as $key => $value) {
@@ -78,14 +70,12 @@
                     return utf8_encode($this->dbret);
                 }
                 return false;
-            }
-            catch(PDOException $e) {
+            } catch(PDOException $e) {
                 //die('Select error: ' . $e->getMessage());
                 return false;
             }
         }
-        public function dbCall($query, $args = array())
-        {
+        public function dbCall($query, $args = array()) {
             try {
                 $dbstm = $this->dbcon->prepare($query);
                 foreach ($args as $key => $value) {
@@ -93,24 +83,20 @@
                 }
                 $dbstm->execute();
                 return $dbstm->rowCount();
-            }
-            catch(PDOException $e) {
+            } catch(PDOException $e) {
                 //die('Call error: ' . $e->getMessage());
                 return false;
             }
         }
-        private static function dbParam($dbstm, $key, $value)
-        {
+        private static function dbParam($dbstm, $key, $value) {
             if (is_numeric($value)) {
                 $dbstm->bindParam($key, $value, PDO::PARAM_INT);
-            }
-            else {
+            } else {
                 $argval = utf8_decode($value);
                 $dbstm->bindParam($key, $argval, PDO::PARAM_STR);
             }
         }
-        private static function dbEncode($dbret)
-        {
+        private static function dbEncode($dbret) {
             $dbquant = count($dbret);
             for($i = 0; $i < $dbquant; $i++) {
                 foreach ($dbret[$i] as $key => $value) {
@@ -119,20 +105,17 @@
             }
             return $dbencode;
         }
-        public function __toString()
-        {
+        public function __toString() {
             if($this->dbret) {
                 return json_encode(
                     $this->encode,
                     JSON_UNESCAPED_UNICODE
                 );
-            }
-            else {
+            } else {
                 return false;
             }
         }
-        public function __destruct()
-        {
+        public function __destruct() {
             if($this->dbcon) {
                 $this->dbcon = null;
             }
